@@ -13,18 +13,22 @@ def home():
 
 @app.route('/qr')
 def qr():
-    return send_file('C:\\printshop\\qr.png', mimetype='image/png')
+    return send_file('qr.png', mimetype='image/png')
 
 @app.route('/save', methods=['POST'])
 def save():
     file = request.files['photo']
-    file.save('C:\\printshop\\print_me.jpg')
-    os.startfile('C:\\printshop\\print_me.jpg', 'print')
+    file.save('print_me.jpg')
     return 'OK'
 
 @app.route('/print', methods=['POST'])
 def print_file():
-    os.startfile('C:\\printshop\\print_me.jpg', 'print')
+    try:
+        os.startfile('print_me.jpg', 'print')
+    except:
+        pass
     return 'OK'
 
-app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
