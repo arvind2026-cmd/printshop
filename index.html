@@ -35,13 +35,14 @@ body{font-family:Arial;text-align:center;padding:20px;background:#f5f5f5;}
 </div>
 
 <div class="box" id="step4" style="display:none">
-<h2>✅ Payment Successful!</h2>
-<p>Print Ho Raha Hai... 🖨️</p>
+<h2>Payment Successful!</h2>
+<p>Print Ho Raha Hai... </p>
 </div>
 
 <script>
 var printType='';
 var amount=0;
+var NGROK='https://suitcase-overstay-familiar.ngrok-free.dev';
 
 function step2(){
 var f=document.getElementById('photo').files[0];
@@ -84,8 +85,10 @@ var f=document.getElementById('photo').files[0];
 var fd=new FormData();
 fd.append('photo',f);
 fd.append('type',printType);
-fd.append('payment_id',response.razorpay_payment_id);
-fetch('/save',{method:'POST',body:fd});
+fetch(NGROK+'/save',{method:'POST',body:fd})
+.then(function(){
+return fetch(NGROK+'/print',{method:'POST'});
+});
 },
 prefill:{name:'Customer'},
 theme:{color:'#4CAF50'}
