@@ -3,6 +3,7 @@
 <head>
 <title>Print Shop</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 body{font-family:Arial;text-align:center;padding:20px;background:#f5f5f5;}
 .box{background:white;padding:20px;border-radius:10px;margin:10px auto;max-width:400px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
@@ -23,24 +24,19 @@ body{font-family:Arial;text-align:center;padding:20px;background:#f5f5f5;}
 <div class="box" id="step2" style="display:none">
 <h2>Step 2 - Print Type Chuno</h2><br>
 <button class="btn2" id="bw" onclick="selectType('bw')">Black & White - 5 Rupees</button><br><br>
-<button class="btn3" id="color" onclick="selectType('color')">Colour - 10 Rupees</button><br><br>
+<button class="btn3" id="col" onclick="selectType('color')">Colour - 10 Rupees</button><br><br>
 <button class="btn" onclick="step3()">Aage Bado</button>
 </div>
 
 <div class="box" id="step3" style="display:none">
 <h2>Step 3 - Payment Karo</h2>
 <p id="amt" style="font-size:20px;font-weight:bold;color:red;"></p>
-<p>Niche QR scan karke payment karo</p>
-<img src="/qr" width="220"><br><br>
-<p style="color:gray;">Kisi bhi UPI app se scan karo</p>
-<p>PhonePe | GPay | Paytm | Any UPI</p>
-<br>
-<button class="btn" onclick="step4()">Payment Ho Gayi - Print Karo</button>
+<button class="btn" onclick="payNow()">Pay Karo</button>
 </div>
 
 <div class="box" id="step4" style="display:none">
-<h2>Print Ho Raha Hai!</h2>
-<p>Thoda wait karo... 🖨️</p>
+<h2>✅ Payment Successful!</h2>
+<p>Print Ho Raha Hai... 🖨️</p>
 </div>
 
 <script>
@@ -59,10 +55,10 @@ printType=t;
 if(t=='bw'){
 amount=5;
 document.getElementById('bw').style.border='3px solid red';
-document.getElementById('color').style.border='none';
+document.getElementById('col').style.border='none';
 }else{
 amount=10;
-document.getElementById('color').style.border='3px solid red';
+document.getElementById('col').style.border='3px solid red';
 document.getElementById('bw').style.border='none';
 }
 }
@@ -72,17 +68,30 @@ if(!printType){alert('Pehle print type chuno!');return;}
 document.getElementById('amt').innerText='Amount: '+amount+' Rupees';
 document.getElementById('step2').style.display='none';
 document.getElementById('step3').style.display='block';
+}
+
+function payNow(){
+var options={
+key:'rzp_test_T6x9DnJ8GUaMTJ',
+amount:amount*100,
+currency:'INR',
+name:'Print Shop',
+description:'Photo Print',
+handler:function(response){
+document.getElementById('step3').style.display='none';
+document.getElementById('step4').style.display='block';
 var f=document.getElementById('photo').files[0];
 var fd=new FormData();
 fd.append('photo',f);
 fd.append('type',printType);
+fd.append('payment_id',response.razorpay_payment_id);
 fetch('/save',{method:'POST',body:fd});
-}
-
-function step4(){
-document.getElementById('step3').style.display='none';
-document.getElementById('step4').style.display='block';
-fetch('/print',{method:'POST'});
+},
+prefill:{name:'Customer'},
+theme:{color:'#4CAF50'}
+};
+var rzp=new Razorpay(options);
+rzp.open();
 }
 </script>
 </body>
